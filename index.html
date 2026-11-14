@@ -1,0 +1,280 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08060d">
+  <title>Fortnite Chest Counter</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08060d;
+      --purple: #922cff;
+      --bright: #b45cff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: 28px 18px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 50% 34%,
+        rgba(125,35,220,.17), transparent 42%),
+        var(--bg);
+      color: white;
+      font-family: system-ui, sans-serif;
+    }
+
+    main {
+      width: min(100%, 480px);
+      text-align: center;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: clamp(2rem, 10vw, 3.35rem);
+      font-weight: 950;
+      letter-spacing: -.065em;
+    }
+
+    .subtitle {
+      margin: 12px 0 24px;
+      color: var(--bright);
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: .32em;
+    }
+
+    .chest-wrap {
+      height: clamp(190px, 53vw, 250px);
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+    }
+
+    .chest {
+      width: min(82%, 310px);
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 22px rgba(151,48,255,.38));
+    }
+
+    .chest.opening {
+      animation: chest-pop .48s ease;
+    }
+
+    @keyframes chest-pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.07) rotate(-2deg); }
+      100% { transform: scale(1); }
+    }
+
+    .counter-card {
+      border: 1.5px solid var(--purple);
+      border-radius: 24px;
+      background: linear-gradient(145deg,
+        rgba(25,14,40,.86), rgba(8,6,13,.92));
+      padding: 18px 14px 16px;
+      box-shadow: 0 0 24px rgba(127,36,220,.12);
+    }
+
+    .count {
+      margin: 0;
+      font-size: clamp(4.4rem, 22vw, 6rem);
+      line-height: .98;
+      font-weight: 850;
+      letter-spacing: -.06em;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .count-label {
+      margin: 9px 0 0;
+      color: var(--bright);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .24em;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin: 22px 4px 20px;
+    }
+
+    button {
+      min-height: 76px;
+      border: 1.5px solid var(--purple);
+      border-radius: 22px;
+      background: #130b20;
+      color: white;
+      font: inherit;
+      font-size: 2.8rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+
+    button.plus {
+      background: linear-gradient(145deg, #a12cff, #6500c9);
+      box-shadow: 0 0 22px rgba(145,35,255,.25);
+    }
+
+    button:active:not(:disabled) {
+      transform: scale(.96);
+    }
+
+    button:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+    }
+
+    .save-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      color: #aaa0b8;
+      font-size: .88rem;
+    }
+
+    .check {
+      display: grid;
+      place-items: center;
+      width: 23px;
+      height: 23px;
+      border-radius: 50%;
+      background: #7e17df;
+      font-weight: 900;
+    }
+
+    .limit {
+      margin-top: 12px;
+      color: #766c83;
+      font-size: .72rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+
+    <h1 class="brand">FORTNITE</h1>
+    <p class="subtitle">CHEST COUNTER</p>
+
+    <div class="chest-wrap">
+      <img
+        id="chest"
+        class="chest"
+        src="assets/chest.jpeg"
+        alt="Coffre Fortnite personnalisé"
+      >
+    </div>
+
+    <section class="counter-card" aria-live="polite">
+      <p id="count" class="count">0</p>
+      <p class="count-label">COFFRES OUVERTS</p>
+    </section>
+
+    <div class="controls">
+      <button id="minus" aria-label="Retirer un coffre">−</button>
+      <button id="plus" class="plus" aria-label="Ajouter un coffre">+</button>
+    </div>
+
+    <div class="save-status" role="status">
+      <span class="check">✓</span>
+      <span id="saveText">Sauvegarde automatique</span>
+    </div>
+
+    <p class="limit">LIMITE : 1 000 000 COFFRES</p>
+
+  </main>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = "fortniteChestCounter.v1";
+      const MAX_COUNT = 1000000;
+
+      const countElement = document.getElementById("count");
+      const minusButton = document.getElementById("minus");
+      const plusButton = document.getElementById("plus");
+      const chest = document.getElementById("chest");
+      const saveText = document.getElementById("saveText");
+
+      function readSavedCount() {
+        try {
+          const saved = Number.parseInt(
+            localStorage.getItem(STORAGE_KEY) ?? "0", 10
+          );
+
+          return Number.isFinite(saved)
+            ? Math.min(MAX_COUNT, Math.max(0, saved))
+            : 0;
+        } catch {
+          saveText.textContent = "Sauvegarde indisponible";
+          return 0;
+        }
+      }
+
+      let count = readSavedCount();
+
+      function render() {
+        countElement.textContent = count.toLocaleString("fr-FR");
+        minusButton.disabled = count <= 0;
+        plusButton.disabled = count >= MAX_COUNT;
+      }
+
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY, String(count));
+          saveText.textContent = "Sauvegarde automatique";
+        } catch {
+          saveText.textContent = "Impossible d'enregistrer";
+        }
+      }
+
+      function animateChest() {
+        chest.classList.remove("opening");
+        void chest.offsetWidth;
+        chest.classList.add("opening");
+      }
+
+      plusButton.addEventListener("click", () => {
+        if (count >= MAX_COUNT) return;
+
+        count++;
+        render();
+        save();
+        animateChest();
+      });
+
+      minusButton.addEventListener("click", () => {
+        if (count <= 0) return;
+
+        count--;
+        render();
+        save();
+      });
+
+      chest.addEventListener("animationend", () => {
+        chest.classList.remove("opening");
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
