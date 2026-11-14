@@ -1,825 +1,220 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#08060d">
-
-<title>Fortnite Chest Counter</title>
-
-<style>
-:root {
-  color-scheme: dark;
-  --bg: #08060d;
-  --purple: #922cff;
-  --bright: #b45cff;
-}
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  min-height: 100svh;
-  padding: 28px 18px;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(ellipse at 50% 34%,
-    rgba(125,35,220,.17), transparent 42%),
-    var(--bg);
-  color: white;
-  font-family: system-ui, sans-serif;
-}
-
-main {
-  width: min(100%, 480px);
-  text-align: center;
-}
-
-.brand {
-  margin: 0;
-  font-size: clamp(2rem, 10vw, 3.35rem);
-  font-weight: 950;
-  letter-spacing: -.065em;
-}
-
-.subtitle {
-  margin: 12px 0 24px;
-  color: var(--bright);
-  font-size: .9rem;
-  font-weight: 800;
-  letter-spacing: .32em;
-}
-
-.chest-wrap {
-  height: clamp(190px, 53vw, 250px);
-  display: grid;
-  place-items: center;
-  margin-bottom: 18px;
-}
-
-.chest {
-  width: min(82%, 310px);
-  max-height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 0 22px rgba(151,48,255,.38));
-}
-
-.chest.opening {
-  animation: chest-pop .48s ease;
-}
-
-@keyframes chest-pop {
-  0% { transform: scale(1); }
-  45% { transform: scale(1.07) rotate(-2deg); }
-  100% { transform: scale(1); }
-}
-
-.counter-card,
-.import-card {
-  border: 1.5px solid var(--purple);
-  border-radius: 24px;
-  background: linear-gradient(145deg,
-    rgba(25,14,40,.86), rgba(8,6,13,.92));
-  padding: 20px 16px;
-  box-shadow: 0 0 24px rgba(127,36,220,.12);
-}
-
-.count {
-  margin: 0;
-  font-size: clamp(4.4rem, 22vw, 6rem);
-  line-height: .98;
-  font-weight: 850;
-  letter-spacing: -.06em;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-
-.count-label {
-  margin: 9px 0 0;
-  color: var(--bright);
-  font-size: .78rem;
-  font-weight: 800;
-  letter-spacing: .24em;
-}
-
-.controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin: 22px 4px 20px;
-}
-
-button {
-  min-height: 76px;
-  border: 1.5px solid var(--purple);
-  border-radius: 22px;
-  background: #130b20;
-  color: white;
-  font: inherit;
-  font-size: 2.8rem;
-  cursor: pointer;
-  touch-action: manipulation;
-  transition: transform .12s ease, opacity .12s ease;
-}
-
-button.plus,
-.add-replay {
-  background: linear-gradient(145deg, #a12cff, #6500c9);
-  box-shadow: 0 0 22px rgba(145,35,255,.25);
-}
-
-button:active:not(:disabled) {
-  transform: scale(.96);
-}
-
-button:disabled {
-  opacity: .35;
-  cursor: not-allowed;
-}
-
-.save-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  color: #aaa0b8;
-  font-size: .88rem;
-}
-
-.check {
-  display: grid;
-  place-items: center;
-  width: 23px;
-  height: 23px;
-  border-radius: 50%;
-  background: #7e17df;
-  font-weight: 900;
-}
-
-.limit {
-  margin-top: 12px;
-  color: #766c83;
-  font-size: .72rem;
-}
-
-/* REPLAY ANALYZER */
-
-.import-card {
-  margin-top: 28px;
-  text-align: left;
-}
-
-.import-title {
-  margin: 0;
-  text-align: center;
-  font-size: 1.2rem;
-  font-weight: 900;
-}
-
-.import-description {
-  color: #aaa0b8;
-  font-size: .85rem;
-  text-align: center;
-  line-height: 1.5;
-  margin: 12px 0 20px;
-}
-
-.file-label {
-  display: block;
-  padding: 22px 12px;
-  border: 2px dashed var(--purple);
-  border-radius: 17px;
-  background: rgba(146,44,255,.08);
-  text-align: center;
-  cursor: pointer;
-}
-
-.file-label strong {
-  display: block;
-  color: var(--bright);
-  margin-bottom: 6px;
-}
-
-.file-label span {
-  font-size: .78rem;
-  color: #aaa0b8;
-}
-
-#videoInput {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-.section-title {
-  font-size: .85rem;
-  font-weight: 850;
-  letter-spacing: .12em;
-  margin: 24px 0 10px;
-}
-
-#clipList {
-  font-size: .8rem;
-  color: #bca6d2;
-  overflow-wrap: anywhere;
-}
-
-.clip {
-  background: #130b20;
-  border: 1px solid #55208b;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 8px;
-}
-
-.frame-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 9px;
-  margin-top: 12px;
-}
-
-.frame-item {
-  background: #130b20;
-  border: 1px solid #55208b;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.frame-item canvas {
-  display: block;
-  width: 100%;
-}
-
-.frame-item p {
-  font-size: 11px;
-  color: #bca6d2;
-  padding: 6px;
-  margin: 0;
-}
-
-.field-label {
-  display: block;
-  font-size: .85rem;
-  font-weight: 750;
-  margin: 22px 0 8px;
-}
-
-.chest-input {
-  width: 100%;
-  padding: 15px;
-  border: 1.5px solid var(--purple);
-  border-radius: 13px;
-  background: #100a18;
-  color: white;
-  font: inherit;
-  font-size: 1.1rem;
-  outline: none;
-}
-
-.chest-input:focus {
-  box-shadow: 0 0 0 3px rgba(146,44,255,.2);
-}
-
-.add-replay {
-  width: 100%;
-  min-height: 60px;
-  margin-top: 15px;
-  border: 1px solid var(--purple);
-  border-radius: 15px;
-  font-size: .95rem;
-  font-weight: 850;
-}
-
-.import-message {
-  min-height: 20px;
-  margin: 12px 0 0;
-  color: #bca6d2;
-  font-size: .8rem;
-  text-align: center;
-}
-
-.privacy {
-  margin-top: 15px;
-  color: #766c83;
-  font-size: .72rem;
-  text-align: center;
-  line-height: 1.5;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: .01ms !important;
-  }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08060d">
+  <title>Fortnite Chest Counter</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08060d;
+      --purple: #922cff;
+      --bright: #b45cff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      padding: 28px 18px;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(ellipse at 50% 34%, rgba(125,35,220,.17), transparent 42%), var(--bg);
+      color: white;
+      font-family: system-ui, sans-serif;
+    }
+    main { width: min(100%, 480px); text-align: center; }
+    .brand {
+      margin: 0;
+      font-size: clamp(2rem, 10vw, 3.35rem);
+      font-weight: 950;
+      letter-spacing: -.065em;
+    }
+    .subtitle {
+      margin: 12px 0 24px;
+      color: var(--bright);
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: .32em;
+    }
+    .chest-wrap {
+      height: clamp(190px, 53vw, 250px);
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+    }
+    .chest {
+      width: min(82%, 310px);
+      max-height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 22px rgba(151,48,255,.38));
+    }
+    .chest.opening { animation: chest-pop .48s ease; }
+    @keyframes chest-pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.07) rotate(-2deg); }
+      100% { transform: scale(1); }
+    }
+    .counter-card {
+      border: 1.5px solid var(--purple);
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(25,14,40,.86), rgba(8,6,13,.92));
+      padding: 18px 14px 16px;
+      box-shadow: 0 0 24px rgba(127,36,220,.12);
+    }
+    .count {
+      margin: 0;
+      font-size: clamp(4.4rem, 22vw, 6rem);
+      line-height: .98;
+      font-weight: 850;
+      letter-spacing: -.06em;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+    .count-label {
+      margin: 9px 0 0;
+      color: var(--bright);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .24em;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin: 22px 4px 20px;
+    }
+    button {
+      min-height: 76px;
+      border: 1.5px solid var(--purple);
+      border-radius: 22px;
+      background: #130b20;
+      color: white;
+      font: inherit;
+      font-size: 2.8rem;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    button.plus {
+      background: linear-gradient(145deg, #a12cff, #6500c9);
+      box-shadow: 0 0 22px rgba(145,35,255,.25);
+    }
+    button:active:not(:disabled) { transform: scale(.96); }
+    button:disabled { opacity: .35; cursor: not-allowed; }
+    .save-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      color: #aaa0b8;
+      font-size: .88rem;
+    }
+    .check {
+      display: grid;
+      place-items: center;
+      width: 23px;
+      height: 23px;
+      border-radius: 50%;
+      background: #7e17df;
+      font-weight: 900;
+    }
+    .limit {
+      margin-top: 12px;
+      color: #766c83;
+      font-size: .72rem;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; }
+    }
+  </style>
 </head>
-
 <body>
-
-<main>
-
-  <h1 class="brand">FORTNITE</h1>
-  <p class="subtitle">CHEST COUNTER</p>
-
-  <div class="chest-wrap">
-    <img
-      id="chest"
-      class="chest"
-      src="assets/chest.png.png"
-      alt="Coffre Fortnite personnalisé"
-    >
-  </div>
-
-  <!-- COMPTEUR -->
-
-  <section class="counter-card" aria-live="polite">
-    <p id="count" class="count">0</p>
-    <p class="count-label">COFFRES OUVERTS</p>
-  </section>
-
-  <div class="controls">
-    <button id="minus" aria-label="Retirer un coffre">−</button>
-    <button id="plus" class="plus" aria-label="Ajouter un coffre">+</button>
-  </div>
-
-  <div class="save-status">
-    <span class="check">✓</span>
-    <span id="saveText">Sauvegarde automatique</span>
-  </div>
-
-  <p class="limit">LIMITE : 100 000 000 COFFRES</p>
-
-  <!-- REPLAY ANALYZER -->
-
-  <section class="import-card">
-
-    <h2 class="import-title">🧠 REPLAY ANALYZER</h2>
-
-    <p class="import-description">
-      Importe plusieurs extraits de ta partie Fortnite.
-      Ils seront regroupés dans une seule session.
-    </p>
-
-    <label class="file-label" for="videoInput">
-      <strong>＋ IMPORTER MES REPLAYS</strong>
-      <span>MP4, MOV ou autre vidéo compatible</span>
-    </label>
-
-    <input
-      id="videoInput"
-      type="file"
-      accept="video/*"
-      multiple
-    >
-
-    <p id="clipStatus" class="import-message">
-      En attente de vidéos.
-    </p>
-
-    <h3 class="section-title">MES EXTRAITS</h3>
-    <div id="clipList"></div>
-
-    <h3 class="section-title">IMAGES EXTRAITES</h3>
-
-    <p class="import-description">
-      Les images sont extraites toutes les 2 secondes.
-      Vérifie les coffres visibles.
-    </p>
-
-    <div id="frameGrid" class="frame-grid"></div>
-
-    <label class="field-label" for="replayCount">
-      Nombre de coffres ouverts dans cette session
-    </label>
-
-    <input
-      id="replayCount"
-      class="chest-input"
-      type="number"
-      min="0"
-      max="100000000"
-      step="1"
-      placeholder="Exemple : 12"
-      inputmode="numeric"
-    >
-
-    <button id="addReplay" class="add-replay" disabled>
-      AJOUTER AU COMPTEUR
-    </button>
-
-    <p id="importMessage" class="import-message">
-      En attente d'analyse.
-    </p>
-
-    <p class="privacy">
-      🔒 Traitement local : tes vidéos restent sur ton appareil.
-      Cette version ne détecte pas encore automatiquement
-      les coffres. Le nombre doit être vérifié manuellement.
-    </p>
-
-  </section>
-
-</main>
-
-<script>
-(() => {
-
-  // CONFIGURATION
-
-  const STORAGE_KEY = "fortniteChestCounter.v1";
-  const MAX_COUNT = 100000000;
-  const MAX_FRAMES_PER_VIDEO = 30;
-  const FRAME_INTERVAL = 2;
-
-  // ELEMENTS
-
-  const countElement = document.getElementById("count");
-  const minusButton = document.getElementById("minus");
-  const plusButton = document.getElementById("plus");
-  const chest = document.getElementById("chest");
-  const saveText = document.getElementById("saveText");
-
-  const videoInput = document.getElementById("videoInput");
-  const clipList = document.getElementById("clipList");
-  const clipStatus = document.getElementById("clipStatus");
-  const frameGrid = document.getElementById("frameGrid");
-
-  const replayCount = document.getElementById("replayCount");
-  const addReplay = document.getElementById("addReplay");
-  const importMessage = document.getElementById("importMessage");
-
-  // COMPTEUR ET SAUVEGARDE
-
-  function readSavedCount() {
-    try {
-      const saved = Number(
-        localStorage.getItem(STORAGE_KEY) ?? "0"
-      );
-
-      return Number.isSafeInteger(saved)
-        ? Math.min(MAX_COUNT, Math.max(0, saved))
-        : 0;
-
-    } catch {
-      saveText.textContent = "Sauvegarde indisponible";
-      return 0;
-    }
-  }
-
-  let count = readSavedCount();
-
-  function render() {
-    countElement.textContent =
-      count.toLocaleString("fr-FR");
-
-    minusButton.disabled = count <= 0;
-    plusButton.disabled = count >= MAX_COUNT;
-  }
-
-  function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(count));
-      saveText.textContent = "Sauvegarde automatique";
-    } catch {
-      saveText.textContent = "Impossible d'enregistrer";
-    }
-  }
-
-  function animateChest() {
-    chest.classList.remove("opening");
-    void chest.offsetWidth;
-    chest.classList.add("opening");
-  }
-
-  chest.addEventListener("animationend", () => {
-    chest.classList.remove("opening");
-  });
-
-  plusButton.addEventListener("click", () => {
-    if (count >= MAX_COUNT) return;
-
-    count++;
-    render();
-    save();
-    animateChest();
-  });
-
-  minusButton.addEventListener("click", () => {
-    if (count <= 0) return;
-
-    count--;
-    render();
-    save();
-  });
-
-  // REPLAY ANALYZER
-
-  let sessionAdded = false;
-  let analyzing = false;
-  let currentFiles = [];
-
-  function validateCount() {
-    const value = replayCount.value.trim();
-    const number = Number(value);
-
-    addReplay.disabled =
-      analyzing ||
-      sessionAdded ||
-      currentFiles.length === 0 ||
-      value === "" ||
-      !Number.isSafeInteger(number) ||
-      number < 0 ||
-      number > MAX_COUNT;
-  }
-
-  replayCount.addEventListener("input", validateCount);
-
-  // IMPORTATION DE PLUSIEURS VIDEOS
-
-  videoInput.addEventListener("change", async () => {
-
-    const files = Array.from(videoInput.files || []);
-
-    const validFiles = files.filter(file =>
-      file.type.startsWith("video/")
-    );
-
-    if (!validFiles.length) {
-      clipStatus.textContent = "Aucune vidéo valide.";
-      return;
-    }
-
-    currentFiles = validFiles;
-    sessionAdded = false;
-    analyzing = true;
-
-    frameGrid.innerHTML = "";
-    clipList.innerHTML = "";
-    replayCount.value = "";
-    replayCount.disabled = false;
-
-    addReplay.disabled = true;
-
-    clipStatus.textContent =
-      "Analyse de " + currentFiles.length + " extrait(s)...";
-
-    importMessage.textContent =
-      "Préparation des vidéos...";
-
-    try {
-
-      for (let i = 0; i < currentFiles.length; i++) {
-
-        const file = currentFiles[i];
-
-        const item = document.createElement("div");
-        item.className = "clip";
-        item.textContent =
-          "🎬 Extrait " + (i + 1) + " : " + file.name;
-
-        clipList.appendChild(item);
-
-        importMessage.textContent =
-          "Extraction de l'extrait " + (i + 1) +
-          " sur " + currentFiles.length + "...";
-
-        await extractFrames(file, i);
-      }
-
-      clipStatus.textContent =
-        "✓ " + currentFiles.length +
-        " extrait(s) examinés.";
-
-      importMessage.textContent =
-        "Images extraites ! Vérifie les coffres.";
-
-    } catch (error) {
-
-      importMessage.textContent =
-        "Erreur : " + error.message;
-
-    } finally {
-
-      analyzing = false;
-      validateCount();
-
-    }
-
-  });
-
-  // EXTRACTION DES IMAGES
-
-  function extractFrames(file, clipIndex) {
-
-    return new Promise((resolve, reject) => {
-
-      const video = document.createElement("video");
-      const url = URL.createObjectURL(file);
-
-      video.preload = "auto";
-      video.muted = true;
-      video.playsInline = true;
-
-      let times = [];
-      let position = 0;
-      let finished = false;
-
-      function cleanup() {
-        video.onloadedmetadata = null;
-        video.onseeked = null;
-        video.onerror = null;
-
-        video.removeAttribute("src");
-        video.load();
-
-        URL.revokeObjectURL(url);
-      }
-
-      function fail(message) {
-        if (finished) return;
-
-        finished = true;
-        cleanup();
-        reject(new Error(message));
-      }
-
-      function finish() {
-        if (finished) return;
-
-        finished = true;
-        cleanup();
-        resolve();
-      }
-
-      video.onloadedmetadata = () => {
-
-        if (
-          !Number.isFinite(video.duration) ||
-          video.duration <= 0 ||
-          !video.videoWidth ||
-          !video.videoHeight
-        ) {
-          fail("Vidéo invalide ou non compatible.");
-          return;
-        }
-
-        const duration = video.duration;
-
-        for (
-          let t = 0.2;
-          t < duration;
-          t += FRAME_INTERVAL
-        ) {
-          times.push(t);
-        }
-
-        if (!times.length) {
-          times.push(duration / 2);
-        }
-
-        times = times.slice(0, MAX_FRAMES_PER_VIDEO);
-
-        video.currentTime = times[0];
-
-      };
-
-      video.onseeked = () => {
-
-        if (finished) return;
-
+  <main>
+    <h1 class="brand">FORTNITE</h1>
+    <p class="subtitle">CHEST COUNTER</p>
+    <div class="chest-wrap">
+      <img id="chest" class="chest" src="assets/chest.png.png" alt="Coffre Fortnite personnalisé">
+    </div>
+    <section class="counter-card" aria-live="polite">
+      <p id="count" class="count">0</p>
+      <p class="count-label">COFFRES OUVERTS</p>
+    </section>
+    <div class="controls">
+      <button id="minus" aria-label="Retirer un coffre">−</button>
+      <button id="plus" class="plus" aria-label="Ajouter un coffre">+</button>
+    </div>
+    <div class="save-status" role="status">
+      <span class="check">✓</span>
+      <span id="saveText">Sauvegarde automatique</span>
+    </div>
+    <p class="limit">LIMITE : 100 000 000 COFFRES</p>
+  </main>
+  <script>
+    (() => {
+      const STORAGE_KEY = "fortniteChestCounter.v1";
+      const MAX_COUNT = 100000000;
+      const countElement = document.getElementById("count");
+      const minusButton = document.getElementById("minus");
+      const plusButton = document.getElementById("plus");
+      const chest = document.getElementById("chest");
+      const saveText = document.getElementById("saveText");
+
+      function readSavedCount() {
         try {
-
-          const canvas = document.createElement("canvas");
-
-          const scale = Math.min(
-            1,
-            480 / video.videoWidth
-          );
-
-          canvas.width = Math.max(
-            1,
-            Math.round(video.videoWidth * scale)
-          );
-
-          canvas.height = Math.max(
-            1,
-            Math.round(video.videoHeight * scale)
-          );
-
-          const ctx = canvas.getContext("2d");
-
-          if (!ctx) {
-            fail("Impossible de créer l'image.");
-            return;
-          }
-
-          ctx.drawImage(
-            video,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          );
-
-          const card = document.createElement("div");
-          card.className = "frame-item";
-
-          card.appendChild(canvas);
-
-          const label = document.createElement("p");
-
-          label.textContent =
-            "Extrait " + (clipIndex + 1) +
-            " • " + times[position].toFixed(1) + " s";
-
-          card.appendChild(label);
-          frameGrid.appendChild(card);
-
-          position++;
-
-          if (position < times.length) {
-
-            video.currentTime = times[position];
-
-          } else {
-
-            finish();
-
-          }
-
-        } catch (error) {
-
-          fail(error.message);
-
+          const saved = Number.parseInt(localStorage.getItem(STORAGE_KEY) ?? "0", 10);
+          return Number.isFinite(saved) ? Math.min(MAX_COUNT, Math.max(0, saved)) : 0;
+        } catch {
+          saveText.textContent = "Sauvegarde indisponible";
+          return 0;
         }
+      }
 
-      };
+      let count = readSavedCount();
 
-      video.onerror = () => {
-        fail("Impossible de lire cette vidéo.");
-      };
+      function render() {
+        countElement.textContent = count.toLocaleString("fr-FR");
+        minusButton.disabled = count <= 0;
+        plusButton.disabled = count >= MAX_COUNT;
+      }
 
-      video.src = url;
-      video.load();
+      function save() {
+        try {
+          localStorage.setItem(STORAGE_KEY, String(count));
+          saveText.textContent = "Sauvegarde automatique";
+        } catch {
+          saveText.textContent = "Impossible d'enregistrer";
+        }
+      }
 
-    });
+      function animateChest() {
+        chest.classList.remove("opening");
+        void chest.offsetWidth;
+        chest.classList.add("opening");
+      }
 
-  }
+      plusButton.addEventListener("click", () => {
+        if (count >= MAX_COUNT) return;
+        count++;
+        render();
+        save();
+        animateChest();
+      });
 
-  // AJOUT AU COMPTEUR
+      minusButton.addEventListener("click", () => {
+        if (count <= 0) return;
+        count--;
+        render();
+        save();
+      });
 
-  addReplay.addEventListener("click", () => {
+      chest.addEventListener("animationend", () => {
+        chest.classList.remove("opening");
+      });
 
-    if (sessionAdded || analyzing) return;
-
-    const value = replayCount.value.trim();
-    const number = Number(value);
-
-    if (
-      value === "" ||
-      !Number.isSafeInteger(number) ||
-      number < 0 ||
-      number > MAX_COUNT
-    ) {
-      importMessage.textContent = "Nombre invalide.";
-      return;
-    }
-
-    if (number > MAX_COUNT - count) {
-
-      importMessage.textContent =
-        "La limite de 100 000 000 serait dépassée.";
-
-      return;
-    }
-
-    count += number;
-
-    render();
-    save();
-    animateChest();
-
-    sessionAdded = true;
-
-    addReplay.disabled = true;
-    replayCount.disabled = true;
-
-    importMessage.textContent =
-      "✓ " + number.toLocaleString("fr-FR") +
-      " coffre(s) ajouté(s) !";
-
-  });
-
-  // INITIALISATION
-
-  render();
-
-})();
-</script>
-
+      render();
+    })();
+  </script>
 </body>
 </html>
