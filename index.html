@@ -161,6 +161,132 @@
       font-size: .72rem;
     }
 
+    /* IMPORTATION DES REPLAYS */
+
+    .import-card {
+      margin-top: 28px;
+      padding: 20px 16px;
+      border: 1.5px solid var(--purple);
+      border-radius: 24px;
+      background: linear-gradient(145deg,
+        rgba(25,14,40,.86), rgba(8,6,13,.92));
+      box-shadow: 0 0 24px rgba(127,36,220,.12);
+      text-align: left;
+    }
+
+    .import-title {
+      margin: 0;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .import-description {
+      color: #aaa0b8;
+      font-size: .85rem;
+      text-align: center;
+      line-height: 1.5;
+      margin: 10px 0 18px;
+    }
+
+    .file-label {
+      display: block;
+      padding: 20px 12px;
+      border: 2px dashed var(--purple);
+      border-radius: 17px;
+      background: rgba(146,44,255,.08);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .file-label strong {
+      display: block;
+      color: var(--bright);
+      margin-bottom: 6px;
+    }
+
+    .file-label span {
+      font-size: .78rem;
+      color: #aaa0b8;
+    }
+
+    #videoInput {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .video-preview {
+      display: none;
+      width: 100%;
+      margin-top: 16px;
+      border-radius: 15px;
+      background: black;
+      border: 1px solid #55208b;
+    }
+
+    .video-name {
+      color: var(--bright);
+      font-size: .8rem;
+      overflow-wrap: anywhere;
+      margin: 10px 0;
+    }
+
+    .field-label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 750;
+      margin: 18px 0 8px;
+    }
+
+    .chest-input {
+      width: 100%;
+      padding: 15px;
+      border: 1.5px solid var(--purple);
+      border-radius: 13px;
+      background: #100a18;
+      color: white;
+      font: inherit;
+      font-size: 1.1rem;
+      outline: none;
+    }
+
+    .chest-input:focus {
+      box-shadow: 0 0 0 3px rgba(146,44,255,.2);
+    }
+
+    .add-replay {
+      width: 100%;
+      min-height: 58px;
+      margin-top: 15px;
+      border-radius: 15px;
+      font-size: 1rem;
+      font-weight: 850;
+      background: linear-gradient(145deg, #a12cff, #6500c9);
+    }
+
+    .add-replay:disabled {
+      opacity: .35;
+    }
+
+    .import-message {
+      min-height: 20px;
+      margin: 12px 0 0;
+      color: #bca6d2;
+      font-size: .8rem;
+      text-align: center;
+    }
+
+    .privacy {
+      margin-top: 14px;
+      color: #766c83;
+      font-size: .72rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: .01ms !important;
@@ -201,6 +327,72 @@
 
     <p class="limit">LIMITE : 100 000 000 COFFRES</p>
 
+    <!-- IMPORTATION -->
+
+    <section class="import-card">
+
+      <h2 class="import-title">📂 IMPORTER UNE PARTIE</h2>
+
+      <p class="import-description">
+        Importe une vidéo de ton gameplay Fortnite
+        pour consulter ton replay.
+      </p>
+
+      <label class="file-label" for="videoInput">
+        <strong>＋ CHOISIR UNE VIDÉO</strong>
+        <span>MP4, WebM ou vidéo compatible avec ton navigateur</span>
+      </label>
+
+      <input
+        id="videoInput"
+        type="file"
+        accept="video/*"
+      >
+
+      <p id="videoName" class="video-name"></p>
+
+      <video
+        id="videoPreview"
+        class="video-preview"
+        controls
+        playsinline
+        preload="metadata"
+      ></video>
+
+      <label class="field-label" for="replayCount">
+        Nombre de coffres ouverts dans cette partie
+      </label>
+
+      <input
+        id="replayCount"
+        class="chest-input"
+        type="number"
+        min="0"
+        max="100000000"
+        step="1"
+        placeholder="Exemple : 12"
+        inputmode="numeric"
+      >
+
+      <button
+        id="addReplay"
+        class="add-replay"
+        disabled
+      >
+        AJOUTER AU COMPTEUR
+      </button>
+
+      <p id="importMessage" class="import-message" role="status">
+        En attente d'une vidéo.
+      </p>
+
+      <p class="privacy">
+        🔒 Analyse locale : ta vidéo n'est envoyée sur aucun serveur.
+        Le nombre doit être vérifié manuellement dans cette première version.
+      </p>
+
+    </section>
+
   </main>
 
   <script>
@@ -213,6 +405,17 @@
       const plusButton = document.getElementById("plus");
       const chest = document.getElementById("chest");
       const saveText = document.getElementById("saveText");
+
+      const videoInput = document.getElementById("videoInput");
+      const videoPreview = document.getElementById("videoPreview");
+      const videoName = document.getElementById("videoName");
+      const replayCount = document.getElementById("replayCount");
+      const addReplay = document.getElementById("addReplay");
+      const importMessage = document.getElementById("importMessage");
+
+      let videoURL = null;
+      let currentVideo = false;
+      let replayAlreadyAdded = false;
 
       function readSavedCount() {
         try {
@@ -271,6 +474,93 @@
 
       chest.addEventListener("animationend", () => {
         chest.classList.remove("opening");
+      });
+
+      // GESTION DE LA VIDÉO
+
+      videoInput.addEventListener("change", () => {
+        const file = videoInput.files[0];
+
+        if (!file) return;
+
+        if (!file.type.startsWith("video/")) {
+          importMessage.textContent = "Format vidéo non reconnu.";
+          return;
+        }
+
+        if (videoURL) {
+          URL.revokeObjectURL(videoURL);
+        }
+
+        videoURL = URL.createObjectURL(file);
+
+        videoPreview.src = videoURL;
+        videoPreview.style.display = "block";
+
+        videoName.textContent = "📹 " + file.name;
+
+        currentVideo = true;
+        replayAlreadyAdded = false;
+
+        replayCount.value = "";
+        addReplay.disabled = true;
+
+        importMessage.textContent =
+          "Vidéo chargée ! Consulte le replay et compte tes coffres.";
+      });
+
+      // VALIDATION DU NOMBRE
+
+      replayCount.addEventListener("input", () => {
+        const value = replayCount.value.trim();
+        const number = Number(value);
+
+        addReplay.disabled =
+          !currentVideo ||
+          replayAlreadyAdded ||
+          value === "" ||
+          !Number.isSafeInteger(number) ||
+          number < 0 ||
+          number > MAX_COUNT;
+      });
+
+      // AJOUT AU COMPTEUR
+
+      addReplay.addEventListener("click", () => {
+        if (!currentVideo || replayAlreadyAdded) return;
+
+        const value = replayCount.value.trim();
+        const number = Number(value);
+
+        if (
+          value === "" ||
+          !Number.isSafeInteger(number) ||
+          number < 0 ||
+          number > MAX_COUNT
+        ) {
+          importMessage.textContent = "Nombre invalide.";
+          return;
+        }
+
+        if (number > MAX_COUNT - count) {
+          importMessage.textContent =
+            "La limite de 100 000 000 serait dépassée.";
+          return;
+        }
+
+        count += number;
+
+        render();
+        save();
+        animateChest();
+
+        replayAlreadyAdded = true;
+        addReplay.disabled = true;
+        replayCount.disabled = true;
+
+        importMessage.textContent =
+          "✓ " + number.toLocaleString("fr-FR") +
+          " coffre(s) ajouté(s) avec succès !";
       });
 
       render();
